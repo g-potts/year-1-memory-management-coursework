@@ -1,7 +1,8 @@
 package com1032.cw;
 
-
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class defines the Segment Table of a Process.
@@ -11,13 +12,14 @@ import java.util.ArrayList;
 public class SegmentTable {
 	
 	private ArrayList<Segment> segments;
+	private Map<Segment, Integer> allocations;
 	
 	/*
 	 * Constructor of SegmentTable
 	 */
 	public SegmentTable(ArrayList<Segment> seg) {
 		this.segments = seg;
-		
+		this.allocations = new HashMap<Segment, Integer>();
 	}
 	
 	
@@ -25,8 +27,13 @@ public class SegmentTable {
 	 * display the details of all of the segments in the table
 	 */
 	public String toString() {
-
-		return "Segment table details: ";
+		//format: SID | base | limit - contents continue - padding to make table consistent?
+		String output = "SID | base | limit\n";
+		for (Segment segment : segments) {
+			output += segment.toString();
+		}
+		return output;
+		
 	}
 
 }
