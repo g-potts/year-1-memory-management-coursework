@@ -1,7 +1,7 @@
 package com1032.cw;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Memory {
 
@@ -11,7 +11,8 @@ public class Memory {
 	 */
 	private int OSsize;
 	private int total_size;
-	private List<> userMemory; //Map<Name, Size>
+	private List<MemoryItem> userMemory;
+	
 	/**
 	 * Main Memory Constructor
 	 * 
@@ -24,7 +25,9 @@ public class Memory {
 		}
 		this.total_size = size;
 		this.OSsize  = os_size;
-		this.userMemory = new ArrayList<>();
+		this.userMemory = new ArrayList<MemoryItem>();
+		//userMemory.add(new MemoryItem("OS", os_size));
+		userMemory.add(new MemoryItem("Hole", size - os_size));
 	}
 	
 	/**
@@ -38,6 +41,11 @@ public class Memory {
 		// i.e, only allocate segments that aren't loaded in the memory
 		
 		//for each segement in process: allocate(process, segment)
+		for (Segment s : process.getSegments()) {
+			try {
+				allocate(process, s);
+			} catch (NullPointerException e) {}
+		}
 		return 1; //-1 if fail
 	}
 
@@ -49,6 +57,42 @@ public class Memory {
 	 */
 	public void allocate(Process p, Segment seg) {
 		//has arraylist sorted with items
+		if (userMemory.contains(seg)) {
+			System.out.println("this segment already in user memory");
+			return;
+		}
+		
+		List<MemoryItem> holes = new ArrayList<MemoryItem>();
+		for (MemoryItem item : userMemory) {
+			if (item.getName() == "Hole") {
+				holes.add(item);
+			}
+		}
+		
+		//find hole with least difference in size - BEST FIT
+		System.out.println("holes found: " + holes.size());
+		MemoryItem chosenHole = holes.get(0);
+		for (MemoryItem hole : holes) {
+			System.out.println("current hole size " + hole.getSize());
+			int currentDif = hole.getSize() - seg.getSize();
+			if (currentDif >= 0 && (currentDif < (holes.get(0).getSize() - seg.getSize()))) {
+				chosenHole = hole;
+				System.out.println("changed");
+			}
+		}
+		int newHoleSize = chosenHole.getSize() - seg.getSize();
+		if (newHoleSize < 0) {
+			throw new NullPointerException("No hole found for this segment");
+		} else {
+			//change from [hole] to [segment and hole] AT SAME INDEXt
+			int holeIndex = userMemory.indexOf(chosenHole);
+			userMemory.remove(chosenHole);
+			userMemory.add(holeIndex, seg);
+			holeIndex++;
+			MemoryItem newHole = new MemoryItem("Hole", newHoleSize);
+			userMemory.add(holeIndex, newHole);
+		}
+		
 	}
 
 	/**
@@ -58,7 +102,22 @@ public class Memory {
 	 * @param seg the segment to be removed from the main memory
 	 */
 	public int deallocate(Process p, Segment seg) {
-
+		if (!userMemory.contains(seg)) {
+			return -1;
+		}
+		//change from [seg] [hole] to [hole]
+		int segIndex = userMemory.indexOf(seg);
+		MemoryItem nextItem = userMemory.get(segIndex + 1);
+		if (((segIndex + 1) < userMemory.size()) && nextItem.getName() == "Hole") {
+			MemoryItem newHole = new MemoryItem("Hole", seg.getSize() + nextItem.getSize());
+			userMemory.remove(seg);
+			userMemory.remove(nextItem);
+			userMemory.add(segIndex, newHole);
+		} else {
+			userMemory.remove(seg);
+			userMemory.add(segIndex, new MemoryItem("Hole", seg.getSize()));
+		}
+		
 		return 1; //-1 for unsuccessful
 	}
 
@@ -80,6 +139,7 @@ public class Memory {
 	 * @return return 1 if successful, -1 otherwise with an error message
 	 */
 	public int resizeProcess(Process p) {
+		//called by process method
 		return 1; //-1 if fail
 	}
 
@@ -88,7 +148,12 @@ public class Memory {
 	 */
 	public void memoryState() {
 		//INCLUDES [PROCESS SEGMENT SIZE] THEN HOLE THEN OTHER PROCESS ETC
-		System.out.println(String.format("[OS %d] | [Hole %d]", OSsize, total_size - OSsize)); //will break
+		String output = "";
+		output += "[OS " + OSsize + "] | ";
+		for (MemoryItem item : userMemory) {
+			output += String.format("[%s: %d] ", item.getName(), item.getSize());
+		}
+		System.out.println(output);
 	}
 
 }

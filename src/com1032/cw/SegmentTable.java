@@ -22,10 +22,21 @@ public class SegmentTable {
 		this.allocations = new HashMap<Segment, Integer>();
 	}
 	
-	
+	public Segment findSegment(int id) {
+		Segment segment = null;
+		for (Segment s : segments) {
+			if (s.getID() == id) {
+				segment = s;
+			}
+		}
+		return segment;
+	}
 	/*
 	 * display the details of all of the segments in the table
 	 */
+	public ArrayList<Segment> getSegments() {
+		return segments;
+	}
 	public String toString() {
 		//format: SID | base | limit - contents continue - padding to make table consistent?
 		String output = "SID | base | limit\n";

@@ -5,14 +5,12 @@ import java.util.List;
 
 public class Process {
 	
-	private int pid = 0; // the id of the process
+	private int pid; // the id of the process
 	private SegmentTable segmentTable;
 	
 	public Process (String processString) {
-		pid ++;
 		ArrayList<Segment> segmentList = new ArrayList<Segment>();
 		
-		//Parser Examples
 		Parser P = new Parser();
 		ArrayList<String>[] list = P.parseInputString(processString);
 		
@@ -20,7 +18,9 @@ public class Process {
 		
 		for(int id = 1; id < list.length; id++) {
 			int segmentSize = Integer.valueOf(list[id].get(0));
-			Segment segment = new Segment(id - 1, segmentSize);
+			int sid = id - 1;
+			String segmentName = String.format("P%d S%d", pid, sid);//P1 S0
+			Segment segment = new Segment(segmentName, sid, segmentSize);
 			segmentList.add(segment);
 		}
 		
@@ -43,11 +43,13 @@ public class Process {
 	 * @param id is the segment ID of the process
 	 */
 	public Segment getSegment(int id) {
-		//find segment from id
-		Segment s = null;
-		return s;
+		//find segment from id ---- done ???
+		return segmentTable.findSegment(id);
 	}
 	
+	public ArrayList<Segment> getSegments() {
+		return segmentTable.getSegments();
+	}
 	/**
 	 * to print the details of segments of the process
 	 */

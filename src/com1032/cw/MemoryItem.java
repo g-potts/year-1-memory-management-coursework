@@ -6,7 +6,18 @@ public class MemoryItem {
 	private int size;
 	
 	//constructor with fields
-	
-	//constructor via segment
+	public MemoryItem(String name, int size) {
+		this.name = name;
+		this.size = size;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public int getSize() {
+		return size;
+	}
+
 	
 }
