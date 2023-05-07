@@ -5,7 +5,7 @@ package com1032.cw;
 public class Segment extends MemoryItem {
 
 	private int id; // the id of the segment
-	private Boolean allocated;
+	private int allocated; //-1 when not allocated memory space
 
 	/**
 	 * default constructor of a Segment
@@ -24,7 +24,11 @@ public class Segment extends MemoryItem {
 	public Segment(String segmentID, int id, int size) {
 		super(segmentID, size);
 		this.id = id;
-		allocated = false;
+		allocated = -1;
+	}
+	
+	public void setAllocation(int value) {
+		allocated = value;
 	}
 	
 	public int getID() {
@@ -35,8 +39,8 @@ public class Segment extends MemoryItem {
 		// TODO: print the details of this segment
 		// format as id | location | size
 		String location = " ";
-		if (allocated) {
-			//get location from memory ???
+		if (allocated > -1) {
+			location = Integer.toString(allocated);
 		}
 		return String.format("%3s | %4s | %5d \n", id, location, this.getSize());
 	}

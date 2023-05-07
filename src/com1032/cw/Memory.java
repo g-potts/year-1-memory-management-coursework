@@ -26,7 +26,6 @@ public class Memory {
 		this.total_size = size;
 		this.OSsize  = os_size;
 		this.userMemory = new ArrayList<MemoryItem>();
-		//userMemory.add(new MemoryItem("OS", os_size));
 		userMemory.add(new MemoryItem("Hole", size - os_size));
 	}
 	
@@ -58,7 +57,6 @@ public class Memory {
 	public void allocate(Process p, Segment seg) {
 		//has arraylist sorted with items
 		if (userMemory.contains(seg)) {
-			System.out.println("this segment already in user memory");
 			return;
 		}
 		
@@ -91,6 +89,7 @@ public class Memory {
 			holeIndex++;
 			MemoryItem newHole = new MemoryItem("Hole", newHoleSize);
 			userMemory.add(holeIndex, newHole);
+			p.allocateSegment(seg, getSegmentLocation(seg));
 		}
 		
 	}
@@ -117,8 +116,8 @@ public class Memory {
 			userMemory.remove(seg);
 			userMemory.add(segIndex, new MemoryItem("Hole", seg.getSize()));
 		}
-		
-		return 1; //-1 for unsuccessful
+		p.deallocateSegment(seg);
+		return 1;
 	}
 
 	/**
@@ -128,10 +127,50 @@ public class Memory {
 	 * @return return 1 if successful, -1 otherwise with an error message
 	 */
 	public int deallocate(Process process) {
-
-		return 1; //-1 for unsuccessful
+		boolean successful = false;
+		for (Segment s : process.getSegments()) {
+			if (deallocate(process, s) == 1) {
+				successful = true;
+			}
+		}
+		if (successful) {
+			refreshMemory();
+			return 1;
+		} else {
+			System.out.println("No segments of this process found");
+			return -1;
+		}	
+	}
+	
+	private void refreshMemory() {
+		for (MemoryItem item : userMemory) {
+			int itemIndex = userMemory.indexOf(item);
+			if (itemIndex + 1 < userMemory.size()) {
+				MemoryItem nextItem = userMemory.get(itemIndex + 1);
+				if (item.getName() == "Hole" && nextItem.getName() == "Hole") {
+					MemoryItem combinedHole = new MemoryItem("Hole", item.getSize() + nextItem.getSize());
+					userMemory.remove(item);
+					userMemory.remove(nextItem);
+					userMemory.add(itemIndex, combinedHole);
+					refreshMemory();
+				}
+			}
+			
+		}
 	}
 
+	private int getSegmentLocation(Segment seg) {
+		int location = OSsize;
+		for (MemoryItem i : userMemory) {
+			if (i == seg) {
+				break;
+			} else {
+				location += i.getSize();
+			}
+		}
+		return location;
+	}
+	
 	/**
 	 * the process p will be updated
 	 * 
@@ -147,7 +186,6 @@ public class Memory {
 	 * function to display the state of memory to the console
 	 */
 	public void memoryState() {
-		//INCLUDES [PROCESS SEGMENT SIZE] THEN HOLE THEN OTHER PROCESS ETC
 		String output = "";
 		output += "[OS " + OSsize + "] | ";
 		for (MemoryItem item : userMemory) {

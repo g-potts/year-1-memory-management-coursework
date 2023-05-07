@@ -34,6 +34,20 @@ public class SegmentTable {
 	/*
 	 * display the details of all of the segments in the table
 	 */
+	public void allocateSegment(Segment seg, int location) {
+//		if (segments.contains(seg)) {
+			allocations.put(seg, location);
+			seg.setAllocation(location);
+//		} else {
+//			throw new NullPointerError("");
+//		}
+	}
+	
+	public void deallocateSegment(Segment seg) {
+		allocations.remove(seg);
+		seg.setAllocation(-1);
+	}
+	
 	public ArrayList<Segment> getSegments() {
 		return segments;
 	}

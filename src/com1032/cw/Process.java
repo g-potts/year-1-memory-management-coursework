@@ -38,6 +38,14 @@ public class Process {
 		//error if more than there ?
 	}
 	
+	public void allocateSegment(Segment seg, int location) {
+		segmentTable.allocateSegment(seg, location);
+	}
+	
+	public void deallocateSegment(Segment seg) {
+		segmentTable.deallocateSegment(seg);
+	}
+	
 	/**
 	 * TODO: return the segment with the input ID
 	 * @param id is the segment ID of the process
