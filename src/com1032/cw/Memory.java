@@ -8,6 +8,11 @@ public class Memory {
 	private int OSsize;
 	private List<MemoryItem> userMemory;
 	
+	/**
+	 * constructor for memory object
+	 * @param size total size of memory
+	 * @param os_size size the operating system is within memory
+	 */
 	public Memory(int size, int os_size) {
 		if (os_size > size) {
 			throw new IllegalArgumentException("total memory size must be larger than os size");
@@ -24,10 +29,6 @@ public class Memory {
 	 * @return return 1 if successful, -1 otherwise with an error message
 	 */
 	public int allocate(Process process) {
-		// make sure segments of a process are only allocated to the memory once
-		// i.e, only allocate segments that aren't loaded in the memory
-		
-		//for each segement in process: allocate(process, segment)
 		for (Segment s : process.getSegments()) {
 			try {
 				allocate(process, s);
@@ -56,6 +57,7 @@ public class Memory {
 				holes.add(item);
 			}
 		}
+		//best fit allocation - places segment in hole nearest the segment's size
 		MemoryItem chosenHole = holes.get(0);
 		for (MemoryItem hole : holes) {
 			int currentDif = hole.getSize() - seg.getSize();
@@ -67,7 +69,7 @@ public class Memory {
 		if (newHoleSize < 0) {
 			throw new NullPointerException("No hole found for this segment");
 		} else {
-			//change from [hole] to [segment and hole] AT SAME INDEXt
+			//placing segment in chosen hole
 			int holeIndex = userMemory.indexOf(chosenHole);
 			userMemory.remove(chosenHole);
 			userMemory.add(holeIndex, seg);
@@ -93,11 +95,13 @@ public class Memory {
 		int segIndex = userMemory.indexOf(seg);
 		MemoryItem nextItem = userMemory.get(segIndex + 1);
 		if (((segIndex + 1) < userMemory.size()) && nextItem.getName() == "Hole") {
+			//if the item after the segment is a hole, combine the two new holes
 			MemoryItem newHole = new MemoryItem("Hole", seg.getSize() + nextItem.getSize());
 			userMemory.remove(seg);
 			userMemory.remove(nextItem);
 			userMemory.add(segIndex, newHole);
 		} else {
+			//if next item is another segment, replace deallocated segment with hole of same size
 			userMemory.remove(seg);
 			userMemory.add(segIndex, new MemoryItem("Hole", seg.getSize()));
 		}
@@ -127,6 +131,9 @@ public class Memory {
 		}	
 	}
 	
+	/**
+	 * combines any adjacent holes
+	 */
 	private void refreshMemory() {
 		for (int i = 0; i < userMemory.size() - 1; i++) {
 			MemoryItem item = userMemory.get(i);
@@ -143,7 +150,9 @@ public class Memory {
 			}
 		}
 	}
-	
+	/**
+	 * B.2.4 - combines all holes into one at end of memory
+	 */
 	public void compact() {
 		List<MemoryItem> holes = new ArrayList<MemoryItem>();
 		int totalHole = 0;
@@ -178,20 +187,46 @@ public class Memory {
 	 * @return return 1 if successful, -1 otherwise with an error message
 	 */
 	public int resizeProcess(Process p) {
-		this.deallocate(p);
-		this.allocate(p);
+		if (this.deallocate(p) == -1) {
+			return -1;
+		}
+		if (this.allocate(p) == -1) {
+			return -1;
+		}
 		return 1; //-1 if fail
 	}
 	
-	public String checkHasPermission(Segment s, char perm) {
+	/**
+	 * checks if segment has a particular permission
+	 * @param location address of segment to check permission for
+	 * @param perm permission to be checked
+	 * @return message stating whether or not segment has relevant permission
+	 */
+	public String checkHasPermission(int location, char perm) {
+		List<Segment> allSegments = new ArrayList<Segment>();
+		for (MemoryItem i : userMemory) {
+			if (i.getName() != "Hole") {
+				allSegments.add((Segment) i);
+			}
+		}
+		Segment segToCheck = null;
+		if (allSegments.size() == 0) {
+			return "Segment not in memory";
+		}
+		for (Segment seg : allSegments) {
+			if (this.getSegmentLocation(seg) == location) {
+				segToCheck = seg;
+				break;
+			}
+		}
 		boolean permission = false;
-		if (perm == 'r' && s.canRead()) {
+		if (perm == 'r' && segToCheck.canRead()) {
 			permission = true;
 		}
-		if (perm == 'w' && s.canWrite()) {
+		if (perm == 'w' && segToCheck.canWrite()) {
 			permission = true;
 		}
-		if (perm == 'x' && s.canExecute()) {
+		if (perm == 'x' && segToCheck.canExecute()) {
 			permission = true;
 		}
 		if (permission) {

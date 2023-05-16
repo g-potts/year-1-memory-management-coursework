@@ -1,10 +1,8 @@
 package com1032.cw;
 
-// TODO: complete this Segment class
-
 public class Segment extends MemoryItem {
 
-	private int id; // the id of the segment
+	private int id;
 	private int allocated; //-1 when not allocated memory space
 	private boolean hasPermissions = false;
 	private boolean read;
@@ -71,9 +69,12 @@ public class Segment extends MemoryItem {
 		output += "\nExecute: " + this.canExecute();
 		return output;
 	}
+	
+	/**
+	 * returns string containing details on segment's id number, location, and size
+	 */
+	@Override
 	public String toString() {
-		// TODO: print the details of this segment
-		// format as id | location | size
 		String location = " ";
 		if (allocated > -1) {
 			location = Integer.toString(allocated);

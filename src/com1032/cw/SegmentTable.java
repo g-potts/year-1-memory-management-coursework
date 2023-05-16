@@ -4,24 +4,25 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * This class defines the Segment Table of a Process.
- * TODO: this class is incomplete
- */
-
 public class SegmentTable {
 	
 	private ArrayList<Segment> segments;
 	private Map<Segment, Integer> allocations;
 	
-	/*
-	 * Constructor of SegmentTable
+	/**
+	 * constructor for segment table object
+	 * @param seg list of segments to add to table
 	 */
 	public SegmentTable(ArrayList<Segment> seg) {
 		this.segments = seg;
 		this.allocations = new HashMap<Segment, Integer>();
 	}
 	
+	/**
+	 * find segment in table from id number
+	 * @param id id of segment to be found
+	 * @return the segment found
+	 */
 	public Segment findSegment(int id) {
 		Segment segment = null;
 		for (Segment s : segments) {
@@ -31,24 +32,29 @@ public class SegmentTable {
 		}
 		return segment;
 	}
-	/*
-	 * display the details of all of the segments in the table
+	
+	/**
+	 * stores location of segment
+	 * @param seg segment to allocate
+	 * @param location location in main memory
 	 */
 	public void allocateSegment(Segment seg, int location) {
-//		if (segments.contains(seg)) {
-			allocations.put(seg, location);
-			seg.setAllocation(location);
-//		} else {
-//			throw new NullPointerError("");
-//		}
-
+		allocations.put(seg, location);
+		seg.setAllocation(location);
 	}
-	
+	/**
+	 * remove allocation of segment
+	 * @param seg segment to deallocate
+	 */
 	public void deallocateSegment(Segment seg) {
 		allocations.remove(seg);
 		seg.setAllocation(-1);
 	}
 	
+	/**
+	 * remove segment from table
+	 * @param seg segment to remove
+	 */
 	public void removeSegment(Segment seg) {
 		segments.remove(seg);
 	}
@@ -56,8 +62,12 @@ public class SegmentTable {
 	public ArrayList<Segment> getSegments() {
 		return segments;
 	}
+	
+	/**
+	 * create table of segments and their information
+	 */
+	@Override
 	public String toString() {
-		//format: SID | base | limit - contents continue - padding to make table consistent?
 		String output = "SID | base | limit | valid-invalid\n";
 		for (Segment segment : segments) {
 			int bit = 0;
@@ -67,7 +77,6 @@ public class SegmentTable {
 			output += segment.toString() + bit + "\n";
 		}
 		return output;
-		
 	}
 
 }

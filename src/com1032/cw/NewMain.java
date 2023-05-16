@@ -19,12 +19,13 @@ public class NewMain {
 		m.allocate(p);
 		m.memoryState();
 		
-		Process p1 = new Process("1, 100, 200, 20");
-		System.out.println(p1.toString());
+		Process p2 = new Process("2, 100, 200, 20");
+		System.out.println(p2.toString());
 		System.out.println("permissions:");
-		System.out.println(p1.getSegment(0).getPermissions());
+		System.out.println(p2.getSegment(0).getPermissions());
 		
-		
+		System.out.println("try to read p1s0 via memory");
+		System.out.println(m.checkHasPermission(124, 'r'));
 		
 //		Memory m = new Memory(1024, 124);
 //		System.out.println("starting memory state:");

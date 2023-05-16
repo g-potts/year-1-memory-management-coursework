@@ -5,7 +5,6 @@ public class MemoryItem {
 	private String name;
 	private int size;
 	
-	//constructor with fields
 	public MemoryItem(String name, int size) {
 		this.name = name;
 		this.size = size;
