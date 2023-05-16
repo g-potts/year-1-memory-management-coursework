@@ -6,14 +6,10 @@ public class Segment extends MemoryItem {
 
 	private int id; // the id of the segment
 	private int allocated; //-1 when not allocated memory space
-
-	/**
-	 * default constructor of a Segment
-	 */
-//	public Segment() {
-//		// TODO: to be completed
-//		allocated = false;
-//	}
+	private boolean hasPermissions = false;
+	private boolean read;
+	private boolean write;
+	private boolean execute;
 
 	/**
 	 * the constructor of Segment
@@ -31,10 +27,50 @@ public class Segment extends MemoryItem {
 		allocated = value;
 	}
 	
+	public void setPermissions(boolean r, boolean w, boolean x) {
+		hasPermissions = true;
+		read = r;
+		write = w;
+		execute = x;
+	}
+	public boolean canRead() {
+		return read;
+	}
+
+	public void setRead(boolean read) {
+		this.read = read;
+	}
+
+	public boolean canWrite() {
+		return write;
+	}
+
+	public void setWrite(boolean write) {
+		this.write = write;
+	}
+
+	public boolean canExecute() {
+		return execute;
+	}
+
+	public void setExecute(boolean execute) {
+		this.execute = execute;
+	}
+
 	public int getID() {
 		return this.id;
 	}
 	
+	public String getPermissions() {
+		if (hasPermissions == false) {
+			return "segments does not have permissions assigned";
+		}
+		String output = "";
+		output += "Read: " + this.canRead();
+		output += "\nWrite: " + this.canWrite();
+		output += "\nExecute: " + this.canExecute();
+		return output;
+	}
 	public String toString() {
 		// TODO: print the details of this segment
 		// format as id | location | size

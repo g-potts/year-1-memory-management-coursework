@@ -21,8 +21,17 @@ public class Process {
 		for(int id = 1; id < list.length; id++) {
 			int segmentSize = Integer.valueOf(list[id].get(0));
 			int sid = id - 1;
-			String segmentName = String.format("P%d S%d", pid, sid);//P1 S0
+			String segmentName = String.format("P%d S%d", pid, sid);
 			Segment segment = new Segment(segmentName, sid, segmentSize);
+
+			if (list[id].size() > 1) {
+				char[] perm = list[id].get(1).toCharArray();
+				if (!list[id].get(1).matches("(r|-)(w|-)(x|-)")) {
+					throw new IllegalArgumentException("permissions must be in form rwx or ---");
+				}
+				segment.setPermissions((perm[0] == 'r'), (perm[1] == 'w'), (perm[2] == 'x'));
+			}
+			
 			segmentList.add(segment);
 		}
 		
@@ -64,6 +73,13 @@ public class Process {
 		segmentTable.deallocateSegment(seg);
 	}
 	
+	public void setSegmentPermissions(int id, String permissions) {
+		char[] perm = permissions.toCharArray();
+		if (!permissions.matches("(r|-)(w|-)(x|-)")) {
+			throw new IllegalArgumentException("permissions must be in form rwx or ---");
+		}
+		segmentTable.getSegments().get(id).setPermissions((perm[0] == 'r'), (perm[1] == 'w'), (perm[2] == 'x'));
+	}
 	/**
 	 * TODO: return the segment with the input ID
 	 * @param id is the segment ID of the process

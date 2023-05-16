@@ -1,29 +1,17 @@
 package com1032.cw;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class Memory {
 
-	/**
-	 * Declare private variables and use the following methods and new methods to
-	 * access them
-	 */
 	private int OSsize;
 	private List<MemoryItem> userMemory;
 	
-	/**
-	 * Main Memory Constructor
-	 * 
-	 * @param size is total memory size
-	 */
 	public Memory(int size, int os_size) {
-		// TODO: this function is to be updated
 		if (os_size > size) {
 			throw new IllegalArgumentException("total memory size must be larger than os size");
 		}
-		//this.total_size = size;
 		this.OSsize  = os_size;
 		this.userMemory = new ArrayList<MemoryItem>();
 		userMemory.add(new MemoryItem("Hole", size - os_size));
@@ -193,6 +181,24 @@ public class Memory {
 		this.deallocate(p);
 		this.allocate(p);
 		return 1; //-1 if fail
+	}
+	
+	public String checkHasPermission(Segment s, char perm) {
+		boolean permission = false;
+		if (perm == 'r' && s.canRead()) {
+			permission = true;
+		}
+		if (perm == 'w' && s.canWrite()) {
+			permission = true;
+		}
+		if (perm == 'x' && s.canExecute()) {
+			permission = true;
+		}
+		if (permission) {
+			return "Action allowed for segment";
+		} else {
+			return "Action not allowed";
+		}
 	}
 	
 	/**

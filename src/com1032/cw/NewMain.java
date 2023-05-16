@@ -8,31 +8,53 @@ public class NewMain {
 		System.out.println("starting memory state:");
 		m.memoryState();
 		
-		Process p1 = new Process("1, 100, 200, 20");
-        Process p2 = new Process("2, 70, 87, 20, 55");
-        System.out.println("processes:");
-        System.out.println(p1.toString());
-        System.out.println(p2.toString());
+		System.out.println("make process with rwe permissions");
+		Process p = new Process("1, [100; r--], [200; r-x], [300; -wx]");
+		System.out.println(p.toString());
+		System.out.println("permissions:");
+		System.out.println(p.getSegment(0).getPermissions());
+		System.out.println("changing from r-- to rwx");
+		p.setSegmentPermissions(0, "rwx");
+		System.out.println(p.getSegment(0).getPermissions());
+		m.allocate(p);
+		m.memoryState();
 		
-        System.out.println("allocate p1");
-        m.allocate(p1);
-        m.memoryState();
-        
-        System.out.println("try deallocating s2 to trigger refresh");
-        m.deallocate(p1, p1.getSegment(2));
-        m.memoryState();
-        
-        System.out.println("deallocate all p1");
-        m.deallocate(p1);
-        m.memoryState();
-        
-        m.allocate(p1);
-        m.allocate(p2);
-        m.memoryState();
-        m.deallocate(p1);
-        m.memoryState();
-        m.compact();
-        m.memoryState();
+		Process p1 = new Process("1, 100, 200, 20");
+		System.out.println(p1.toString());
+		System.out.println("permissions:");
+		System.out.println(p1.getSegment(0).getPermissions());
+		
+		
+		
+//		Memory m = new Memory(1024, 124);
+//		System.out.println("starting memory state:");
+//		m.memoryState();
+//		
+//		Process p1 = new Process("1, 100, 200, 20");
+//        Process p2 = new Process("2, 70, 87, 20, 55");
+//        System.out.println("processes:");
+//        System.out.println(p1.toString());
+//        System.out.println(p2.toString());
+//		
+//        System.out.println("allocate p1");
+//        m.allocate(p1);
+//        m.memoryState();
+//        
+//        System.out.println("try deallocating s2 to trigger refresh");
+//        m.deallocate(p1, p1.getSegment(2));
+//        m.memoryState();
+//        
+//        System.out.println("deallocate all p1");
+//        m.deallocate(p1);
+//        m.memoryState();
+//        
+//        m.allocate(p1);
+//        m.allocate(p2);
+//        m.memoryState();
+//        m.deallocate(p1);
+//        m.memoryState();
+//        m.compact();
+//        m.memoryState();
 		
 		/*
 		Memory m = new Memory(1024, 124);
