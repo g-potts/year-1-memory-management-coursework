@@ -1,7 +1,5 @@
 package com1032.cw;
 
-import java.util.Arrays;
-
 public class Main {
 
 	

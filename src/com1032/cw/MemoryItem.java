@@ -19,5 +19,7 @@ public class MemoryItem {
 		return size;
 	}
 
-	
+	public void adjustSize(int amount) {
+		this.size += amount;
+	}
 }

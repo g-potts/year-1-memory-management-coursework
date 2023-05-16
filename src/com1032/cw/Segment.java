@@ -42,6 +42,6 @@ public class Segment extends MemoryItem {
 		if (allocated > -1) {
 			location = Integer.toString(allocated);
 		}
-		return String.format("%3s | %4s | %5d \n", id, location, this.getSize());
+		return String.format("%3s | %4s | %5d | ", id, location, this.getSize());
 	}
 }

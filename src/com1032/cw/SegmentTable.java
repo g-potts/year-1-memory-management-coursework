@@ -41,6 +41,7 @@ public class SegmentTable {
 //		} else {
 //			throw new NullPointerError("");
 //		}
+
 	}
 	
 	public void deallocateSegment(Segment seg) {
@@ -48,14 +49,22 @@ public class SegmentTable {
 		seg.setAllocation(-1);
 	}
 	
+	public void removeSegment(Segment seg) {
+		segments.remove(seg);
+	}
+	
 	public ArrayList<Segment> getSegments() {
 		return segments;
 	}
 	public String toString() {
 		//format: SID | base | limit - contents continue - padding to make table consistent?
-		String output = "SID | base | limit\n";
+		String output = "SID | base | limit | valid-invalid\n";
 		for (Segment segment : segments) {
-			output += segment.toString();
+			int bit = 0;
+			if (allocations.containsKey(segment)) {
+				bit++;
+			}
+			output += segment.toString() + bit + "\n";
 		}
 		return output;
 		

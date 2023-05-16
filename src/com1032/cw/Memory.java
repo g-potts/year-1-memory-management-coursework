@@ -1,6 +1,7 @@
 package com1032.cw;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class Memory {
@@ -10,7 +11,6 @@ public class Memory {
 	 * access them
 	 */
 	private int OSsize;
-	private int total_size;
 	private List<MemoryItem> userMemory;
 	
 	/**
@@ -23,7 +23,7 @@ public class Memory {
 		if (os_size > size) {
 			throw new IllegalArgumentException("total memory size must be larger than os size");
 		}
-		this.total_size = size;
+		//this.total_size = size;
 		this.OSsize  = os_size;
 		this.userMemory = new ArrayList<MemoryItem>();
 		userMemory.add(new MemoryItem("Hole", size - os_size));
@@ -43,9 +43,13 @@ public class Memory {
 		for (Segment s : process.getSegments()) {
 			try {
 				allocate(process, s);
-			} catch (NullPointerException e) {}
+			} catch (NullPointerException e) {
+				System.out.println("not enough space for all segments of this process.");
+				deallocate(process);
+				return -1;
+			}
 		}
-		return 1; //-1 if fail
+		return 1;
 	}
 
 	/**
@@ -55,27 +59,20 @@ public class Memory {
 	 * @param seg the segment to be allocated
 	 */
 	public void allocate(Process p, Segment seg) {
-		//has arraylist sorted with items
 		if (userMemory.contains(seg)) {
 			return;
 		}
-		
 		List<MemoryItem> holes = new ArrayList<MemoryItem>();
 		for (MemoryItem item : userMemory) {
 			if (item.getName() == "Hole") {
 				holes.add(item);
 			}
 		}
-		
-		//find hole with least difference in size - BEST FIT
-		System.out.println("holes found: " + holes.size());
 		MemoryItem chosenHole = holes.get(0);
 		for (MemoryItem hole : holes) {
-			System.out.println("current hole size " + hole.getSize());
 			int currentDif = hole.getSize() - seg.getSize();
 			if (currentDif >= 0 && (currentDif < (holes.get(0).getSize() - seg.getSize()))) {
 				chosenHole = hole;
-				System.out.println("changed");
 			}
 		}
 		int newHoleSize = chosenHole.getSize() - seg.getSize();
@@ -143,7 +140,8 @@ public class Memory {
 	}
 	
 	private void refreshMemory() {
-		for (MemoryItem item : userMemory) {
+		for (int i = 0; i < userMemory.size() - 1; i++) {
+			MemoryItem item = userMemory.get(i);
 			int itemIndex = userMemory.indexOf(item);
 			if (itemIndex + 1 < userMemory.size()) {
 				MemoryItem nextItem = userMemory.get(itemIndex + 1);
@@ -155,10 +153,24 @@ public class Memory {
 					refreshMemory();
 				}
 			}
-			
 		}
 	}
-
+	
+	public void compact() {
+		List<MemoryItem> holes = new ArrayList<MemoryItem>();
+		int totalHole = 0;
+		for (MemoryItem i : userMemory) {
+			if (i.getName() == "Hole") {
+				holes.add(i);
+				totalHole += i.getSize();
+			}
+		}
+		for (MemoryItem i : holes) {
+			userMemory.remove(i);
+		}
+		userMemory.add(new MemoryItem("Hole", totalHole));
+	}
+	
 	private int getSegmentLocation(Segment seg) {
 		int location = OSsize;
 		for (MemoryItem i : userMemory) {
@@ -178,10 +190,11 @@ public class Memory {
 	 * @return return 1 if successful, -1 otherwise with an error message
 	 */
 	public int resizeProcess(Process p) {
-		//called by process method
+		this.deallocate(p);
+		this.allocate(p);
 		return 1; //-1 if fail
 	}
-
+	
 	/**
 	 * function to display the state of memory to the console
 	 */
