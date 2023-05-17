@@ -44,25 +44,24 @@ public class Process {
 	 */
 	public void resize(String segments) {
 		Parser p = new Parser();
-		ArrayList<String>[] parsedSegments = p.parseInputString(segments);
-		if (parsedSegments.length > this.getSegments().size()) {
-			throw new IllegalArgumentException("More resize arguments provided than segments available");
-		}
-		int i = 0;
-		ArrayList<Segment> segmentlist = this.getSegments();
-		for (ArrayList<String> s: parsedSegments) {
-			Segment segToChange = segmentlist.get(i);
-			segToChange.adjustSize(Integer.valueOf(s.get(0)));
-			int newSize = segToChange.getSize();
-			if (newSize < 0) {
-				throw new IllegalArgumentException("Segment size cannot be negative");
-			} else if (newSize == 0) {
-				this.segmentTable.removeSegment(segToChange);
-			}
-			i++;
-			
-		}
+		ArrayList<String>[] adjustments = p.parseInputString(segments);
+		ArrayList<Segment> currentSegments = segmentTable.getSegments();
 		
+		for (int i = 0; i < adjustments.length; i++) {
+			if (i > currentSegments.size() - 1) {
+				String segmentName = String.format("P%d S%d", pid, i);
+				segmentTable.addSegment(segmentName, i, Integer.valueOf(adjustments[i].get(0)));
+			} else {
+				Segment segToChange = currentSegments.get(i);
+				segToChange.adjustSize(Integer.valueOf(adjustments[i].get(0)));
+				int newSize = segToChange.getSize();
+				if (newSize < 0) {
+					throw new IllegalArgumentException("Segment size cannot be negative");
+				} else if (newSize == 0) {
+					this.segmentTable.removeSegment(segToChange);
+				}
+			}
+		}
 	}
 	
 	/**

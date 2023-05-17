@@ -64,6 +64,14 @@ public class SegmentTable {
 	}
 	
 	/**
+	 * add new segment to table
+	 * @param size size of segment
+	 */
+	public void addSegment(String name, int id, int size) {
+		segments.add(new Segment(name, id, size));
+	}
+	
+	/**
 	 * create table of segments and their information
 	 */
 	@Override

@@ -106,6 +106,7 @@ public class Memory {
 			userMemory.add(segIndex, new MemoryItem("Hole", seg.getSize()));
 		}
 		p.deallocateSegment(seg);
+		this.refreshMemory();
 		return 1;
 	}
 
@@ -123,7 +124,7 @@ public class Memory {
 			}
 		}
 		if (successful) {
-			refreshMemory();
+			this.refreshMemory();
 			return 1;
 		} else {
 			System.out.println("No segments of this process found");
@@ -150,6 +151,7 @@ public class Memory {
 			}
 		}
 	}
+	
 	/**
 	 * B.2.4 - combines all holes into one at end of memory
 	 */
@@ -186,14 +188,16 @@ public class Memory {
 	 * @param p the input process to be updated/resized
 	 * @return return 1 if successful, -1 otherwise with an error message
 	 */
-	public int resizeProcess(Process p) {
+	public int resizeProcess(Process p, String adjustments) {
+		int r = 1;
 		if (this.deallocate(p) == -1) {
-			return -1;
+			r = -1;
 		}
+		p.resize(adjustments);
 		if (this.allocate(p) == -1) {
-			return -1;
+			r = -1;
 		}
-		return 1; //-1 if fail
+		return r;
 	}
 	
 	/**
