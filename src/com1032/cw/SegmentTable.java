@@ -30,6 +30,9 @@ public class SegmentTable {
 				segment = s;
 			}
 		}
+		if (segment == null) {
+			throw new NullPointerException("Segment not found");
+		}
 		return segment;
 	}
 	

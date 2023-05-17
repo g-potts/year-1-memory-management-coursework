@@ -171,15 +171,21 @@ public class Memory {
 	}
 	
 	private int getSegmentLocation(Segment seg) {
+		boolean found = false;
 		int location = OSsize;
 		for (MemoryItem i : userMemory) {
 			if (i == seg) {
+				found = true;
 				break;
 			} else {
 				location += i.getSize();
 			}
 		}
-		return location;
+		if (found) {
+			return location;
+		} else {
+			throw new NullPointerException("Segment not found in memory");
+		}
 	}
 	
 	/**
@@ -215,13 +221,18 @@ public class Memory {
 		}
 		Segment segToCheck = null;
 		if (allSegments.size() == 0) {
-			return "Segment not in memory";
+			throw new NullPointerException("No segments in memory");
 		}
+		boolean found = false;
 		for (Segment seg : allSegments) {
 			if (this.getSegmentLocation(seg) == location) {
+				found = true;
 				segToCheck = seg;
 				break;
 			}
+		}
+		if (found == false) {
+			throw new NullPointerException("Segment not found in memory");
 		}
 		boolean permission = false;
 		if (perm == 'r' && segToCheck.canRead()) {

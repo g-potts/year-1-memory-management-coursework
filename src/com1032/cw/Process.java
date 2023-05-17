@@ -20,7 +20,7 @@ public class Process {
 		}
 		this.pid = Integer.valueOf(list[0].get(0));
 		
-		//parse segment sizes and any permissions
+		//parse segment sizes and any permissions given
 		for(int id = 1; id < list.length; id++) {
 			int segmentSize = Integer.valueOf(list[id].get(0));
 			int sid = id - 1;
@@ -32,6 +32,8 @@ public class Process {
 					throw new IllegalArgumentException("permissions must be in form rwx or ---");
 				}
 				segment.setPermissions((perm[0] == 'r'), (perm[1] == 'w'), (perm[2] == 'x'));
+			} else {
+				segment.setPermissions(false, false, false);
 			}
 			segmentList.add(segment);
 		}
@@ -49,6 +51,9 @@ public class Process {
 		
 		for (int i = 0; i < adjustments.length; i++) {
 			if (i > currentSegments.size() - 1) {
+				if (Integer.valueOf(adjustments[i].get(0)) < 1) {
+					throw new IllegalArgumentException("New segment cannot be negative size or 0");
+				}
 				String segmentName = String.format("P%d S%d", pid, i);
 				segmentTable.addSegment(segmentName, i, Integer.valueOf(adjustments[i].get(0)));
 			} else {
